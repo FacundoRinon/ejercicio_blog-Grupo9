@@ -16,9 +16,11 @@
  * no debería existir.
  */
 
-const { Article, Author, Comment } = require("../models");
+const { Article, Author, Comment, Role } = require("../models");
 const { format } = require("date-fns");
 const { es } = require("date-fns/locale");
+const localUser = require("../middlewares/makeUserAvailableInViews");
+const { Model } = require("sequelize");
 
 async function index(req, res) {
   const articles = await Article.findAll({
@@ -34,19 +36,39 @@ async function index(req, res) {
 }
 
 async function showAdmin(req, res) {
-  const articles = await Article.findAll({ where: { authorId: req.user.id }, include: "author" });
+  let articles;
+
+  if (req.user.role.code >= 300) {
+    articles = await Article.findAll({
+      include: "author",
+      order: [["createdAt", "DESC"]],
+    });
+  } else {
+    articles = await Article.findAll({
+      where: { authorId: req.user.id },
+      include: "author",
+      order: [["createdAt", "DESC"]],
+    });
+  }
   articles.forEach((article) => {
     article.dataValues.createdAt = format(article.dataValues.createdAt, "yyyy'-'MM'-'dd hh:mm:ss", {
       locale: es,
     });
   });
+  console.log(req.user.role.code);
   return res.render("admin", { articles });
 }
 
 // Otros handlers...
 // ...
 
+async function showUserPanel(req, res) {
+  const users = await Author.findAll({ inclide: Role });
+  res.render("userPanel", { users });
+}
+
 module.exports = {
   index,
   showAdmin,
+  showUserPanel,
 };

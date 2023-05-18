@@ -1,6 +1,6 @@
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
-const { Author } = require("../models");
+const { Author, Role } = require("../models");
 const bcrypt = require("bcryptjs");
 
 function passportConfig() {
@@ -31,7 +31,7 @@ function passportConfig() {
 
   passport.deserializeUser(async function (id, done) {
     try {
-      const user = await Author.findByPk(id);
+      const user = await Author.findByPk(id, { include: Role });
       done(null, user);
     } catch (error) {
       done(error);

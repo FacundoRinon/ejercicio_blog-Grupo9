@@ -13,7 +13,7 @@ async function show(req, res) {
   res.render("login");
 }
 
-//Log Ou
+//Log Out
 function logout(req, res) {
   req.logout(function (err) {
     if (err) {

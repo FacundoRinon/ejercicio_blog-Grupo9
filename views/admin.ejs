@@ -49,11 +49,20 @@
             <td><%=article.createdAt%></td>
             <td><%=article.author.authorFirstname%> <%=article.author.authorLastname%></td>
             <td>
+              <% if (article.author.id === user.id || user.role.code >=400 ){ %>
               <a href="/articulos/<%=article.id%>/editar" type="submit" class="btn btn-primary mb-3"
                 >Editar</a
               >
               <form action="/articulos/<%=article.id%>/eliminar?_method=DELETE" method="POST">
                 <button class="btn btn-danger mb-3" type="submit">Eliminar</button>
+                <% } else if (article.author.id === user.id || user.role.code >=300) {%>
+                <a
+                  href="/articulos/<%=article.id%>/editar"
+                  type="submit"
+                  class="btn btn-primary mb-3"
+                  >Editar</a
+                >
+                <% } %>
               </form>
               <% } %>
             </td>

@@ -1,4 +1,4 @@
-const { Author } = require("../models");
+const { Author, Article } = require("../models");
 const formidable = require("formidable");
 const bcrypt = require("bcryptjs");
 const passportConfig = require("../config/passport");
@@ -17,17 +17,30 @@ async function store(req, res) {
       authorLastname: req.body.lastName,
       authorEmail: req.body.email,
       password: await bcrypt.hash(req.body.password, 3),
+      roleId: 1,
     });
   }
   if (newAuthor) {
-    req.login(newAuthor, () => res.redirect("/admin"));
+    req.login(newAuthor, () => res.redirect("/"));
     console.log(req.user);
   } else {
     res.redirect("back");
   }
 }
 
+// Entrar a perfil
+
+async function show(req, res) {
+  const articles = await Article.findAll({
+    where: { authorId: req.user.id },
+    include: "author",
+    order: [["createdAt", "DESC"]],
+  });
+  res.render("profile", { articles });
+}
+
 module.exports = {
   create,
   store,
+  show,
 };
